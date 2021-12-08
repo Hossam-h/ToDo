@@ -1,0 +1,139 @@
+<script type="text/javascript" src="js/vue.js"></script>
+<link href="https://unpkg.com/todomvc-app-css@2.1.0/index.css" rel="stylesheet"/>
+
+<section class="todoapp">
+
+  <header class="header">
+    <h1>todos</h1>
+  <input class="new-todo" autocomplete="off" v-model="newToDo" @keyUp.enter="addToDo"
+      placeholder="What needs to be done?">
+  </header>
+
+  <section class="main" >
+    
+    
+    <input class="toggle-all" id="toggle-all" type="checkbox" v-model="allDone">
+    <label for="toggle-all">Mark all as complete</label>
+
+  
+    <ul class="todo-list">
+      <li class="todo" v-for="todo in filterdTodos" v-bind:class="{completed:todo.completed}" >
+        <div class="view">
+          <input class="toggle" type="checkbox" v-model="todo.completed">
+          <label>{{todo.title}}</label>
+          <button class="destroy" @click="deleteTodo(todo)"></button>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <footer class="footer">
+    <span class="todo-count">
+      <strong>{{remaningToDo}}</strong>  {{remaningText}}
+    </span>
+    <ul class="filters">
+      <li><a href="#" @click.prevent="visibility='all' " 
+        :class="{selected:visibility=='all'}">All</a></li>
+      <li><a href="#" @click.prevent="visibility='active' "
+        :class="{selected:visibility=='active'}">Active</a></li>
+      <li><a href="#" @click.prevent="visibility='completed' "
+        :class="{selected:visibility=='completed'}">Completed</a>
+    </ul>
+    <button class="clear-completed" @click="removeCompleted">
+      Clear completed
+    </button>
+
+  </footer>
+</section>
+
+<script type="text/javascript">
+ var filters = {
+    'all': function(todos){
+      return todos;
+    },
+    active: function(todos){
+      return todos.filter(function(todo){
+        return ! todo.completed;
+      });
+    },
+    completed : function(todos){
+      return todos.filter(function(todo){
+        return todo.completed;
+      });
+    },
+
+    
+
+  }
+
+  
+
+
+  new Vue({
+    'el': '.todoapp',
+    data: {
+      newToDo:'',
+      visibility: 'all',
+      
+      todos: [
+        {title:'test 1', completed: false},
+        {title:'test 2', completed: true},
+      ]
+    },
+
+    computed:{
+      filterdTodos: function(){
+        return filters [this.visibility]  (this.todos);
+      },
+      //number of active todo
+      remaningToDo:function(){
+        return filters.active( this.todos ).length;
+      },
+
+      // to make all task completed or active
+      allDone: {
+        get: function(){
+          return this.remaningToDo === 0;
+        },
+        set: function(value){
+          this.todos.forEach(function(todo){
+            todo.completed = value;
+          });
+        }
+      },
+      remaningText:function(){
+       if (filters.active( this.todos ).length>1){
+        return 'items'
+        }else{
+          return 'item'
+        };
+      },
+
+      
+    },
+    methods:{
+
+      //to delete todo
+      deleteTodo: function(tod){
+        this.todos.splice(this.todos.indexOf(tod), 1);
+      },
+      
+      // to add new todo
+      addToDo: function(){
+        if (this.newToDo != ''){
+          this.todos.push({
+          'title':this.newToDo,
+          'completed':false
+        })
+      }
+        
+        this.newToDo=''
+      },
+
+      removeCompleted:function(){
+        this.todos=filters.active(this.todos)
+      }
+      
+    }
+  });
+</script>
